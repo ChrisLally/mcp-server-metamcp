@@ -1,4 +1,4 @@
-# MetaMCP MCP Server
+# mcp.garden Proxy MCP Server
 
 [https://metamcp.com](https://metamcp.com): The One MCP to manage all your MCPs
 
@@ -127,4 +127,5 @@ sequenceDiagram
 
 ## Credits
 
-- Inspirations and some code (refactored in this project) from https://github.com/adamwattis/mcp-proxy-server/
+- Inspirations and some code (refactored in this project) from https://github.com/metatool-ai/mcp-server-metamcp
+  - Which had inspirations and some code (refactored in this project) from https://github.com/adamwattis/mcp-proxy-server/
