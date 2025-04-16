@@ -49,7 +49,7 @@ export function getDefaultEnvironment(): Record<string, string> {
  * Get the mcp.garden API base URL from environment variables
  */
 export function getMetaMcpApiBaseUrl(): string {
-  return process.env.MCPGARDEN_API_BASE_URL || "https://mcpgarden.com";
+  return process.env.MCPGARDEN_API_BASE_URL || "https://mcp.garden";
 }
 
 /**
