@@ -5,7 +5,7 @@ import {
 } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
-import { ServerParameters } from "./fetch-metamcp.js";
+import { ServerParameters } from "./fetch-mcp.js";
 
 const sleep = (time: number) =>
   new Promise<void>((resolve) => setTimeout(() => resolve(), time));
@@ -38,7 +38,7 @@ export const createMetaMcpClient = (
 
   const client = new Client(
     {
-      name: "MetaMCP",
+      name: "mcp.garden",
       version: "0.4.5",
     },
     {
@@ -78,7 +78,7 @@ export const connectMetaMcpClient = async (
       if (retry) {
         try {
           await client.close();
-        } catch {}
+        } catch { }
         await sleep(waitFor);
       }
     }

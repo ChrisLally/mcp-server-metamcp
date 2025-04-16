@@ -15,7 +15,7 @@ export async function startSSEServer(
   const app = express();
   const port = options.port || 12006;
   const requireApiAuth = options.requireApiAuth || false;
-  const apiKey = process.env.METAMCP_API_KEY;
+  const apiKey = process.env.MCPGARDEN_API_KEY;
 
   // to support multiple simultaneous connections we have a lookup object from
   // sessionId to transport

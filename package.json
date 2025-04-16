@@ -1,24 +1,24 @@
 {
-  "name": "@metamcp/mcp-server-metamcp",
-  "version": "0.4.5",
-  "description": "MCP Server MetaMCP manages all your other MCPs in one MCP.",
+  "name": "@mcpgarden/server",
+  "version": "1.0.0",
+  "description": "MCP Server mcp.garden manages all your other MCPs in one MCP.",
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
     "watch": "tsc --watch",
-    "inspector": "dotenv -e .env.local npx @modelcontextprotocol/inspector dist/index.js -e METAMCP_API_KEY=${METAMCP_API_KEY} -e METAMCP_API_BASE_URL=${METAMCP_API_BASE_URL}",
-    "inspector:prod": "dotenv -e .env.production.local npx @modelcontextprotocol/inspector dist/index.js -e METAMCP_API_KEY=${METAMCP_API_KEY}",
+    "inspector": "dotenv -e .env.local npx @modelcontextprotocol/inspector dist/index.js -e MCPGARDEN_API_KEY=${MCPGARDEN_API_KEY} -e MCPGARDEN_API_BASE_URL=${MCPGARDEN_API_BASE_URL}",
+    "inspector:prod": "dotenv -e .env.production.local npx @modelcontextprotocol/inspector dist/index.js -e MCPGARDEN_API_KEY=${MCPGARDEN_API_KEY}",
     "report": "dotenv -e .env.local -- node dist/index.js --report"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/metatool-ai/mcp-server-metamcp.git"
+    "url": "git+https://github.com/ChrisLally/mcpgarden-metaproxymcp.git"
   },
-  "author": "James Zhang",
+  "author": "Christopher Lally",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/metatool-ai/mcp-server-metamcp/issues"
+    "url": "https://github.com/ChrisLally/mcpgarden-metaproxymcp/issues"
   },
-  "homepage": "https://github.com/metatool-ai/mcp-server-metamcp#readme",
+  "homepage": "https://github.com/ChrisLally/mcpgarden-metaproxymcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
     "axios": "^1.7.9",
@@ -35,7 +35,7 @@
   },
   "type": "module",
   "bin": {
-    "mcp-server-metamcp": "dist/index.js"
+    "mcpgarden-server": "dist/index.js"
   },
   "files": [
     "dist"

@@ -41,7 +41,7 @@ export class ToolLogManager {
   private static instance: ToolLogManager;
   private logStore: Map<string, ToolExecutionLog> = new Map();
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): ToolLogManager {
     if (!ToolLogManager.instance) {
@@ -207,7 +207,7 @@ export class ToolLogManager {
 }
 
 /**
- * Reports a tool execution log to the MetaMCP API
+ * Reports a tool execution log to the mcp.garden API
  * @param logData The tool execution log data
  * @returns Result of the API call
  */
@@ -241,7 +241,7 @@ export async function reportToolExecutionLog(
       };
     }
 
-    // Submit log to MetaMCP API
+    // Submit log to mcp.garden API
     try {
       const response = await axios.post(
         `${apiBaseUrl}/api/tool-execution-logs`,
@@ -329,7 +329,7 @@ export async function updateToolExecutionLog(
       };
     }
 
-    // Submit update to MetaMCP API
+    // Submit update to mcp.garden API
     try {
       const response = await axios.put(
         `${apiBaseUrl}/api/tool-execution-logs/${logId}`,

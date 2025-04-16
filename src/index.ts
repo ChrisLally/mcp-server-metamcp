@@ -11,18 +11,18 @@ const program = new Command();
 
 program
   .name("mcp-server-metamcp")
-  .description("MetaMCP MCP Server - The One MCP to manage all your MCPs")
+  .description("mcp.garden MCP Server - The One MCP to manage all your MCPs")
   .option(
     "--metamcp-api-key <key>",
-    "API key for MetaMCP (can also be set via METAMCP_API_KEY env var)"
+    "API key for mcp.garden (can also be set via MCPGARDEN_API_KEY env var)"
   )
   .option(
     "--metamcp-api-base-url <url>",
-    "Base URL for MetaMCP API (can also be set via METAMCP_API_BASE_URL env var)"
+    "Base URL for mcp.garden API (can also be set via MCPGARDEN_API_BASE_URL env var)"
   )
   .option(
     "--report",
-    "Fetch all MCPs, initialize clients, and report tools to MetaMCP API"
+    "Fetch all MCPs, initialize clients, and report tools to mcp.garden API"
   )
   .option("--transport <type>", "Transport type to use (stdio or sse)", "stdio")
   .option("--port <port>", "Port to use for SSE transport", "3001")
@@ -33,10 +33,10 @@ const options = program.opts();
 
 // Set environment variables from command line arguments
 if (options.metamcpApiKey) {
-  process.env.METAMCP_API_KEY = options.metamcpApiKey;
+  process.env.MCPGARDEN_API_KEY = options.metamcpApiKey;
 }
 if (options.metamcpApiBaseUrl) {
-  process.env.METAMCP_API_BASE_URL = options.metamcpApiBaseUrl;
+  process.env.MCPGARDEN_API_BASE_URL = options.metamcpApiBaseUrl;
 }
 
 async function main() {

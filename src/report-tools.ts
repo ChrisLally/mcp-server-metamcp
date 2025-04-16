@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getMetaMcpApiBaseUrl, getMetaMcpApiKey } from "./utils.js";
-import { getMcpServers } from "./fetch-metamcp.js";
+import { getMcpServers } from "./fetch-mcp.js";
 import { initSessions, getSession } from "./sessions.js";
 import { getSessionKey } from "./utils.js";
 import { ListToolsResultSchema } from "@modelcontextprotocol/sdk/types.js";
@@ -13,7 +13,7 @@ export interface MetaMcpTool {
   mcp_server_uuid: string;
 }
 
-// API route handler for submitting tools to MetaMCP
+// API route handler for submitting tools to mcp.garden
 export async function reportToolsToMetaMcp(tools: MetaMcpTool[]) {
   try {
     const apiKey = getMetaMcpApiKey();
@@ -56,7 +56,7 @@ export async function reportToolsToMetaMcp(tools: MetaMcpTool[]) {
       });
     }
 
-    // Submit valid tools to MetaMCP API
+    // Submit valid tools to mcp.garden API
     let results: any[] = [];
     if (validTools.length > 0) {
       try {
@@ -111,7 +111,7 @@ export async function reportToolsToMetaMcp(tools: MetaMcpTool[]) {
   }
 }
 
-// Function to fetch all MCP servers, initialize clients, and report tools to MetaMCP API
+// Function to fetch all MCP servers, initialize clients, and report tools to mcp.garden API
 export async function reportAllTools() {
   console.log("Fetching all MCPs and initializing clients...");
 
@@ -150,7 +150,7 @@ export async function reportAllTools() {
 
         if (result.tools && result.tools.length > 0) {
           console.log(
-            `Reporting ${result.tools.length} tools from ${params.name} to MetaMCP API...`
+            `Reporting ${result.tools.length} tools from ${params.name} to mcp.garden API...`
           );
 
           const reportResult = await reportToolsToMetaMcp(
@@ -174,6 +174,6 @@ export async function reportAllTools() {
     })
   );
 
-  console.log("Finished reporting all tools to MetaMCP API");
+  console.log("Finished reporting all tools to mcp.garden API");
   process.exit(0);
 }

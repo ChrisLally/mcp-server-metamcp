@@ -1,4 +1,4 @@
-import { ServerParameters } from "./fetch-metamcp.js";
+import { ServerParameters } from "./fetch-mcp.js";
 import crypto from "crypto";
 
 /**
@@ -7,20 +7,20 @@ import crypto from "crypto";
 export const DEFAULT_INHERITED_ENV_VARS =
   process.platform === "win32"
     ? [
-        "APPDATA",
-        "HOMEDRIVE",
-        "HOMEPATH",
-        "LOCALAPPDATA",
-        "PATH",
-        "PROCESSOR_ARCHITECTURE",
-        "SYSTEMDRIVE",
-        "SYSTEMROOT",
-        "TEMP",
-        "USERNAME",
-        "USERPROFILE",
-      ]
+      "APPDATA",
+      "HOMEDRIVE",
+      "HOMEPATH",
+      "LOCALAPPDATA",
+      "PATH",
+      "PROCESSOR_ARCHITECTURE",
+      "SYSTEMDRIVE",
+      "SYSTEMROOT",
+      "TEMP",
+      "USERNAME",
+      "USERPROFILE",
+    ]
     : /* list inspired by the default env inheritance of sudo */
-      ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER"];
+    ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER"];
 
 /**
  * Returns a default environment object including only environment variables deemed safe to inherit.
@@ -46,17 +46,17 @@ export function getDefaultEnvironment(): Record<string, string> {
 }
 
 /**
- * Get the MetaMCP API base URL from environment variables
+ * Get the mcp.garden API base URL from environment variables
  */
 export function getMetaMcpApiBaseUrl(): string {
-  return process.env.METAMCP_API_BASE_URL || "https://api.metamcp.com";
+  return process.env.MCPGARDEN_API_BASE_URL || "https://mcpgarden.com";
 }
 
 /**
- * Get the MetaMCP API key from environment variables
+ * Get the mcp.garden API key from environment variables
  */
 export function getMetaMcpApiKey(): string | undefined {
-  return process.env.METAMCP_API_KEY;
+  return process.env.MCPGARDEN_API_KEY;
 }
 
 export function sanitizeName(name: string): string {
@@ -78,8 +78,8 @@ export function computeParamsHash(
       args: params.args,
       env: params.env
         ? Object.fromEntries(
-            Object.entries(params.env).sort((a, b) => a[0].localeCompare(b[0]))
-          )
+          Object.entries(params.env).sort((a, b) => a[0].localeCompare(b[0]))
+        )
         : null,
     };
   } else if (params.type === "SSE") {

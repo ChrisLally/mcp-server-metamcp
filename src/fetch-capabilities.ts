@@ -32,7 +32,7 @@ export async function getProfileCapabilities(
 
     if (!apiKey) {
       console.error(
-        "METAMCP_API_KEY is not set. Please set it via environment variable or command line argument."
+        "MCPGARDEN_API_KEY is not set. Please set it via environment variable or command line argument."
       );
       return _capabilitiesCache || [];
     }

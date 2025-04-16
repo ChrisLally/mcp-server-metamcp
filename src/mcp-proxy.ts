@@ -18,7 +18,7 @@ import {
   GetPromptResultSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import { getMcpServers } from "./fetch-metamcp.js";
+import { getMcpServers } from "./fetch-mcp.js";
 import { getSessionKey, sanitizeName } from "./utils.js";
 import { cleanupAllSessions, getSession, initSessions } from "./sessions.js";
 import { ConnectedClient } from "./client.js";
@@ -39,7 +39,7 @@ const inactiveToolsMap: Record<string, boolean> = {};
 export const createServer = async () => {
   const server = new Server(
     {
-      name: "MetaMCP",
+      name: "mcp.garden",
       version: "0.4.5",
     },
     {
@@ -121,9 +121,8 @@ export const createServer = async () => {
             result.tools?.forEach((tool) => {
               const isInactive = inactiveTools[`${uuid}:${tool.name}`];
               if (isInactive) {
-                const formattedName = `${sanitizeName(serverName)}__${
-                  tool.name
-                }`;
+                const formattedName = `${sanitizeName(serverName)}__${tool.name
+                  }`;
                 inactiveToolsMap[formattedName] = true;
               }
             });
@@ -220,7 +219,7 @@ export const createServer = async () => {
       if (hasToolsLogCapability && logId) {
         try {
           await toolLogManager.completeLog(logId, result, executionTime);
-        } catch (logError) {}
+        } catch (logError) { }
       }
 
       return result;
@@ -235,12 +234,11 @@ export const createServer = async () => {
             error.message || "Unknown error",
             executionTime
           );
-        } catch (logError) {}
+        } catch (logError) { }
       }
 
       console.error(
-        `Error calling tool "${name}" through ${
-          clientForTool.client.getServerVersion()?.name || "unknown"
+        `Error calling tool "${name}" through ${clientForTool.client.getServerVersion()?.name || "unknown"
         }:`,
         error
       );
@@ -274,8 +272,7 @@ export const createServer = async () => {
       return response;
     } catch (error) {
       console.error(
-        `Error getting prompt through ${
-          clientForPrompt.client.getServerVersion()?.name
+        `Error getting prompt through ${clientForPrompt.client.getServerVersion()?.name
         }:`,
         error
       );
@@ -406,8 +403,7 @@ export const createServer = async () => {
       );
     } catch (error) {
       console.error(
-        `Error reading resource through ${
-          clientForResource.client.getServerVersion()?.name
+        `Error reading resource through ${clientForResource.client.getServerVersion()?.name
         }:`,
         error
       );

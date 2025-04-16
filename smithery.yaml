@@ -13,10 +13,10 @@ startCommand:
         description: The API key from metamcp.com/api-keys. Required.
       metamcpApiBaseUrl:
         type: string
-        description: Optional override for the MetaMCP App URL (default is https://api.metamcp.com).
+        description: Optional override for the mcp.garden App URL (default is https://api.metamcp.com).
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
     # Note: Command line arguments can also be used directly:
     # --metamcp-api-key <your-api-key> --metamcp-api-base-url <base-url>
     |-
-    (config) => ({ command: 'node', args: ['dist/index.js'], env: { METAMCP_API_KEY: config.metamcpApiKey, ...(config.metamcpApiBaseUrl && { METAMCP_API_BASE_URL: config.metamcpApiBaseUrl }) } })
+    (config) => ({ command: 'node', args: ['dist/index.js'], env: { MCPGARDEN_API_KEY: config.metamcpApiKey, ...(config.metamcpApiBaseUrl && { MCPGARDEN_API_BASE_URL: config.metamcpApiBaseUrl }) } })
