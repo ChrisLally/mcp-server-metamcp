@@ -40,7 +40,7 @@ export const createServer = async () => {
   const server = new Server(
     {
       name: "mcp.garden",
-      version: "1.0.2",
+      version: "1.0.3",
     },
     {
       capabilities: {

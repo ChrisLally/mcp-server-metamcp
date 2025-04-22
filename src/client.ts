@@ -52,7 +52,7 @@ export const createProxyMcpClient = (
   const client = new Client(
     {
       name: "mcp.garden",
-      version: "1.0.2",
+      version: "1.0.3",
     },
     {
       capabilities: {
