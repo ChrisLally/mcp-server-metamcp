@@ -25,13 +25,13 @@ import { ConnectedClient } from "./client.js";
 import { reportToolsToMetaMcp } from "./report-tools.js";
 import { getInactiveTools, ToolParameters } from "./fetch-tools.js";
 import {
-  getProfileCapabilities,
-  ProfileCapability,
+  getProxyServerCapabilities, // Use new function name
+  ProxyServerCapability, // Use new enum name
 } from "./fetch-capabilities.js";
 import { ToolLogManager } from "./tool-logs.js";
 
 const toolToClient: Record<string, ConnectedClient> = {};
-const toolToServerUuid: Record<string, string> = {};
+const toolToServerId: Record<string, string> = {}; // Renamed map
 const promptToClient: Record<string, ConnectedClient> = {};
 const resourceToClient: Record<string, ConnectedClient> = {};
 const inactiveToolsMap: Record<string, boolean> = {};
@@ -40,7 +40,7 @@ export const createServer = async () => {
   const server = new Server(
     {
       name: "mcp.garden",
-      version: "0.4.5",
+      version: "1.0.2",
     },
     {
       capabilities: {
@@ -56,12 +56,13 @@ export const createServer = async () => {
 
   // List Tools Handler
   server.setRequestHandler(ListToolsRequestSchema, async (request) => {
-    const profileCapabilities = await getProfileCapabilities(true);
+    const proxyServerCapabilities = await getProxyServerCapabilities(true); // Use new function name
     const serverParams = await getMcpServers(true);
+    // console.log("Fetched serverParams:", serverParams); // REMOVED: Interferes with stdio
 
     // Fetch inactive tools only if tools management capability is present
     let inactiveTools: Record<string, ToolParameters> = {};
-    if (profileCapabilities.includes(ProfileCapability.TOOLS_MANAGEMENT)) {
+    if (proxyServerCapabilities.includes(ProxyServerCapability.TOOLS_MANAGEMENT)) { // Use new enum name
       inactiveTools = await getInactiveTools(true);
       // Clear existing inactive tools map before rebuilding
       Object.keys(inactiveToolsMap).forEach(
@@ -72,13 +73,27 @@ export const createServer = async () => {
     const allTools: Tool[] = [];
 
     await Promise.allSettled(
-      Object.entries(serverParams).map(async ([uuid, params]) => {
-        const sessionKey = getSessionKey(uuid, params);
-        const session = await getSession(sessionKey, uuid, params);
-        if (!session) return;
+      Object.entries(serverParams).map(async ([id, params]) => { // Use id from object key
+        // console.log(`Processing server ID: ${id}`); // Keep commented out
+        // console.log("Server Parameters:", params); // Keep commented out
+
+        // Log SSE info if applicable
+        // if (params.type === "SSE") { // Keep commented out
+        //   console.log(`SSE Server URL: ${params.url}`);
+        // }
+
+        const sessionKey = getSessionKey(id, params); // Pass id
+        const session = await getSession(sessionKey, id, params); // Pass id
+        if (!session) {
+          // console.log(`No active session found for id: ${id}, skipping.`); // Keep commented out
+          return;
+        }
 
         const capabilities = session.client.getServerCapabilities();
-        if (!capabilities?.tools) return;
+        if (!capabilities?.tools) {
+          // console.log(`Server ${id} does not have tool capabilities, skipping.`); // Keep commented out
+          return;
+        }
 
         const serverName = session.client.getServerVersion()?.name || "";
         try {
@@ -90,23 +105,25 @@ export const createServer = async () => {
             ListToolsResultSchema
           );
 
+          // console.log(`Raw tools received from ${serverName} (ID: ${id}):`, result.tools); // Keep commented out
+
           const toolsWithSource =
             result.tools
               ?.filter((tool) => {
                 // Only filter inactive tools if tools management is enabled
                 if (
-                  profileCapabilities.includes(
-                    ProfileCapability.TOOLS_MANAGEMENT
+                  proxyServerCapabilities.includes(
+                    ProxyServerCapability.TOOLS_MANAGEMENT
                   )
                 ) {
-                  return !inactiveTools[`${uuid}:${tool.name}`];
+                  return !inactiveTools[`${id}:${tool.name}`]; // Use id
                 }
                 return true;
               })
               .map((tool) => {
                 const toolName = `${sanitizeName(serverName)}__${tool.name}`;
                 toolToClient[toolName] = session;
-                toolToServerUuid[toolName] = uuid;
+                toolToServerId[toolName] = id; // Use renamed map
                 return {
                   ...tool,
                   name: toolName,
@@ -116,13 +133,12 @@ export const createServer = async () => {
 
           // Update our inactive tools map only if tools management is enabled
           if (
-            profileCapabilities.includes(ProfileCapability.TOOLS_MANAGEMENT)
+            proxyServerCapabilities.includes(ProxyServerCapability.TOOLS_MANAGEMENT) // Use new names
           ) {
             result.tools?.forEach((tool) => {
-              const isInactive = inactiveTools[`${uuid}:${tool.name}`];
+              const isInactive = inactiveTools[`${id}:${tool.name}`]; // Use id
               if (isInactive) {
-                const formattedName = `${sanitizeName(serverName)}__${tool.name
-                  }`;
+                const formattedName = `${sanitizeName(serverName)}__${tool.name}`;
                 inactiveToolsMap[formattedName] = true;
               }
             });
@@ -133,7 +149,7 @@ export const createServer = async () => {
                 name: tool.name,
                 description: tool.description,
                 toolSchema: tool.inputSchema,
-                mcp_server_uuid: uuid,
+                mcp_server_id: id, // Use id
               }))
             ).catch();
           }
@@ -161,27 +177,27 @@ export const createServer = async () => {
       throw new Error(`Unknown tool: ${name}`);
     }
 
-    // Get MCP server UUID for the tool
-    const mcpServerUuid = toolToServerUuid[name] || "";
+    // Get MCP server ID for the tool
+    const mcpServerId = toolToServerId[name] || ""; // Use renamed map
 
-    if (!mcpServerUuid) {
-      console.error(`Could not determine MCP server UUID for tool: ${name}`);
+    if (!mcpServerId) {
+      console.error(`Could not determine MCP server ID for tool: ${name}`);
     }
 
-    // Get profile capabilities
-    const profileCapabilities = await getProfileCapabilities();
+    // Get proxy server capabilities
+    const proxyServerCapabilities = await getProxyServerCapabilities(); // Use new function name
 
     // Only check inactive tools if tools management capability is present
     if (
-      profileCapabilities.includes(ProfileCapability.TOOLS_MANAGEMENT) &&
+      proxyServerCapabilities.includes(ProxyServerCapability.TOOLS_MANAGEMENT) && // Use new names
       inactiveToolsMap[name]
     ) {
       throw new Error(`Tool is inactive: ${name}`);
     }
 
     // Check if TOOL_LOGS capability is enabled
-    const hasToolsLogCapability = profileCapabilities.includes(
-      ProfileCapability.TOOL_LOGS
+    const hasToolsLogCapability = proxyServerCapabilities.includes(
+      ProxyServerCapability.TOOL_LOGS // Use new enum name
     );
 
     try {
@@ -189,7 +205,7 @@ export const createServer = async () => {
       if (hasToolsLogCapability) {
         const log = await toolLogManager.createLog(
           originalToolName,
-          mcpServerUuid,
+          mcpServerId, // Use renamed variable
           args || {}
         );
         logId = log.id;
@@ -286,9 +302,9 @@ export const createServer = async () => {
     const allPrompts: z.infer<typeof ListPromptsResultSchema>["prompts"] = [];
 
     await Promise.allSettled(
-      Object.entries(serverParams).map(async ([uuid, params]) => {
-        const sessionKey = getSessionKey(uuid, params);
-        const session = await getSession(sessionKey, uuid, params);
+      Object.entries(serverParams).map(async ([id, params]) => { // Use id
+        const sessionKey = getSessionKey(id, params); // Use id
+        const session = await getSession(sessionKey, id, params); // Use id
         if (!session) return;
 
         const capabilities = session.client.getServerCapabilities();
@@ -338,9 +354,9 @@ export const createServer = async () => {
       [];
 
     await Promise.allSettled(
-      Object.entries(serverParams).map(async ([uuid, params]) => {
-        const sessionKey = getSessionKey(uuid, params);
-        const session = await getSession(sessionKey, uuid, params);
+      Object.entries(serverParams).map(async ([id, params]) => { // Use id
+        const sessionKey = getSessionKey(id, params); // Use id
+        const session = await getSession(sessionKey, id, params); // Use id
         if (!session) return;
 
         const capabilities = session.client.getServerCapabilities();
@@ -419,9 +435,9 @@ export const createServer = async () => {
       const allTemplates: ResourceTemplate[] = [];
 
       await Promise.allSettled(
-        Object.entries(serverParams).map(async ([uuid, params]) => {
-          const sessionKey = getSessionKey(uuid, params);
-          const session = await getSession(sessionKey, uuid, params);
+        Object.entries(serverParams).map(async ([id, params]) => { // Use id
+          const sessionKey = getSessionKey(id, params); // Use id
+          const session = await getSession(sessionKey, id, params); // Use id
           if (!session) return;
 
           const capabilities = session.client.getServerCapabilities();

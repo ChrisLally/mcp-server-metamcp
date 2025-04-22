@@ -13,7 +13,7 @@ startCommand:
         description: The API key from metamcp.com/api-keys. Required.
       metamcpApiBaseUrl:
         type: string
-        description: Optional override for the mcp.garden App URL (default is https://api.metamcp.com).
+        description: Optional override for the mcp.garden App URL (default is https://mcp.garden).
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
     # Note: Command line arguments can also be used directly:

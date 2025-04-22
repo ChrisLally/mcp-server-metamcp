@@ -8,7 +8,7 @@ enum ToolStatus {
 
 // Define interface for tool parameters with only required fields
 export interface ToolParameters {
-  mcp_server_uuid: string;
+  mcp_server_id: string;
   name: string;
   status: ToolStatus;
 }
@@ -55,12 +55,12 @@ export async function getInactiveTools(
     if (data && data.results) {
       for (const tool of data.results) {
         const params: ToolParameters = {
-          mcp_server_uuid: tool.mcp_server_uuid,
+          mcp_server_id: tool.mcp_server_id,
           name: tool.name,
           status: tool.status,
         };
 
-        const uniqueId = `${tool.mcp_server_uuid}:${tool.name}`;
+        const uniqueId = `${tool.mcp_server_id}:${tool.name}`;
         toolDict[uniqueId] = params;
       }
     }

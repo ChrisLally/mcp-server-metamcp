@@ -1,8 +1,12 @@
 import axios from "axios";
-import { getMetaMcpApiBaseUrl, getMetaMcpApiKey } from "./utils.js";
 import {
-  ProfileCapability,
-  getProfileCapabilities,
+  getMetaMcpApiBaseUrl,
+  getMetaMcpApiKey,
+  getMetaMcpProxyServerId, // Import the function
+} from "./utils.js";
+import {
+  ProxyServerCapability, // Use new enum name
+  getProxyServerCapabilities, // Use new function name
 } from "./fetch-capabilities.js";
 
 // Define status enum for tool execution
@@ -19,7 +23,7 @@ export interface ToolExecutionLog {
   payload: any;
   status: ToolExecutionStatus;
   result?: any;
-  mcp_server_uuid: string;
+  mcp_server_id: string;
   error_message?: string | null;
   execution_time_ms: number;
   created_at?: string;
@@ -53,19 +57,19 @@ export class ToolLogManager {
   /**
    * Creates a new tool execution log
    * @param toolName Name of the tool
-   * @param serverUuid UUID of the MCP server
+   * @param serverId ID of the MCP server
    * @param payload The input parameters for the tool
    * @returns Log object with tracking ID
    */
   public async createLog(
     toolName: string,
-    serverUuid: string,
+    serverId: string, // Renamed parameter
     payload: any
   ): Promise<ToolExecutionLog> {
     // Check for TOOL_LOGS capability first
-    const profileCapabilities = await getProfileCapabilities();
-    const hasToolsLogCapability = profileCapabilities.includes(
-      ProfileCapability.TOOL_LOGS
+    const proxyServerCapabilities = await getProxyServerCapabilities();
+    const hasToolsLogCapability = proxyServerCapabilities.includes(
+      ProxyServerCapability.TOOL_LOGS // Use new enum name
     );
 
     // Generate a temporary ID for tracking
@@ -76,7 +80,7 @@ export class ToolLogManager {
     const log: ToolExecutionLog = {
       id: tempId, // Will be replaced with the real ID from the API
       tool_name: toolName,
-      mcp_server_uuid: serverUuid,
+      mcp_server_id: serverId, // Use renamed parameter
       payload,
       status: ToolExecutionStatus.PENDING,
       execution_time_ms: 0,
@@ -136,9 +140,9 @@ export class ToolLogManager {
     this.logStore.set(logId, log);
 
     // Check for TOOL_LOGS capability before sending update to API
-    const profileCapabilities = await getProfileCapabilities();
-    const hasToolsLogCapability = profileCapabilities.includes(
-      ProfileCapability.TOOL_LOGS
+    const proxyServerCapabilities = await getProxyServerCapabilities(); // Use new function name
+    const hasToolsLogCapability = proxyServerCapabilities.includes(
+      ProxyServerCapability.TOOL_LOGS // Use new enum name
     );
 
     // Send update to API only if TOOL_LOGS capability is present
@@ -216,9 +220,9 @@ export async function reportToolExecutionLog(
 ): Promise<ToolLogResponse> {
   try {
     // Check for TOOL_LOGS capability first
-    const profileCapabilities = await getProfileCapabilities();
-    const hasToolsLogCapability = profileCapabilities.includes(
-      ProfileCapability.TOOL_LOGS
+    const proxyServerCapabilities = await getProxyServerCapabilities(); // Use new function name
+    const hasToolsLogCapability = proxyServerCapabilities.includes(
+      ProxyServerCapability.TOOL_LOGS // Use new enum name
     );
 
     if (!hasToolsLogCapability) {
@@ -227,16 +231,21 @@ export async function reportToolExecutionLog(
 
     const apiKey = getMetaMcpApiKey();
     const apiBaseUrl = getMetaMcpApiBaseUrl();
+    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       return { success: false, error: "API key not set" };
     }
 
+    if (!mcpProxyServerId) {
+      return { success: false, error: "Proxy Server ID not set" };
+    }
+
     // Validate required fields
-    if (!logData.tool_name || !logData.mcp_server_uuid) {
+    if (!logData.tool_name || !logData.mcp_server_id) {
       return {
         success: false,
-        error: "Missing required fields: tool_name or mcp_server_uuid",
+        error: "Missing required fields: tool_name or mcp_server_id",
         status: 400,
       };
     }
@@ -244,7 +253,7 @@ export async function reportToolExecutionLog(
     // Submit log to mcp.garden API
     try {
       const response = await axios.post(
-        `${apiBaseUrl}/api/tool-execution-logs`,
+        `${apiBaseUrl}/api/tool-execution-logs?mcpProxyServerId=${mcpProxyServerId}`, // Add proxy ID
         logData,
         {
           headers: {
@@ -306,9 +315,9 @@ export async function updateToolExecutionLog(
 ): Promise<ToolLogResponse> {
   try {
     // Check for TOOL_LOGS capability first
-    const profileCapabilities = await getProfileCapabilities();
-    const hasToolsLogCapability = profileCapabilities.includes(
-      ProfileCapability.TOOL_LOGS
+    const proxyServerCapabilities = await getProxyServerCapabilities(); // Use new function name
+    const hasToolsLogCapability = proxyServerCapabilities.includes(
+      ProxyServerCapability.TOOL_LOGS // Use new enum name
     );
 
     if (!hasToolsLogCapability) {
@@ -317,9 +326,14 @@ export async function updateToolExecutionLog(
 
     const apiKey = getMetaMcpApiKey();
     const apiBaseUrl = getMetaMcpApiBaseUrl();
+    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       return { success: false, error: "API key not set" };
+    }
+
+    if (!mcpProxyServerId) {
+      return { success: false, error: "Proxy Server ID not set" };
     }
 
     if (!logId) {
@@ -332,7 +346,7 @@ export async function updateToolExecutionLog(
     // Submit update to mcp.garden API
     try {
       const response = await axios.put(
-        `${apiBaseUrl}/api/tool-execution-logs/${logId}`,
+        `${apiBaseUrl}/api/tool-execution-logs/${logId}?mcpProxyServerId=${mcpProxyServerId}`, // Add proxy ID
         updateData,
         {
           headers: {
@@ -382,7 +396,7 @@ export async function updateToolExecutionLog(
 /**
  * Simple function to log a tool execution
  * @param toolName Name of the tool
- * @param serverUuid UUID of the MCP server
+ * @param serverId ID of the MCP server
  * @param payload The input parameters for the tool
  * @param result The result of the tool execution
  * @param status Status of the execution
@@ -392,7 +406,7 @@ export async function updateToolExecutionLog(
  */
 export async function logToolExecution(
   toolName: string,
-  serverUuid: string,
+  serverId: string, // Renamed parameter
   payload: any,
   result: any = null,
   status: ToolExecutionStatus = ToolExecutionStatus.SUCCESS,
@@ -400,9 +414,9 @@ export async function logToolExecution(
   executionTimeMs: number = 0
 ): Promise<ToolLogResponse> {
   // Check for TOOL_LOGS capability first
-  const profileCapabilities = await getProfileCapabilities();
-  const hasToolsLogCapability = profileCapabilities.includes(
-    ProfileCapability.TOOL_LOGS
+  const proxyServerCapabilities = await getProxyServerCapabilities(); // Use new function name
+  const hasToolsLogCapability = proxyServerCapabilities.includes(
+    ProxyServerCapability.TOOL_LOGS // Use new enum name
   );
 
   if (!hasToolsLogCapability) {
@@ -411,7 +425,7 @@ export async function logToolExecution(
 
   const logData: ToolExecutionLog = {
     tool_name: toolName,
-    mcp_server_uuid: serverUuid,
+    mcp_server_id: serverId, // Use renamed parameter
     payload,
     status,
     result,

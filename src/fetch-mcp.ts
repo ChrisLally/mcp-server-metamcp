@@ -3,11 +3,12 @@ import {
   getDefaultEnvironment,
   getMetaMcpApiBaseUrl,
   getMetaMcpApiKey,
+  getMetaMcpProxyServerId, // Import the new function
 } from "./utils.js";
 
 // Define a new interface for server parameters that can be either STDIO or SSE
 export interface ServerParameters {
-  uuid: string;
+  id: string;
   name: string;
   description: string;
   type?: "STDIO" | "SSE"; // Optional field, defaults to "STDIO" when undefined
@@ -16,7 +17,7 @@ export interface ServerParameters {
   env?: Record<string, string> | null;
   url?: string | null;
   created_at: string;
-  profile_uuid: string;
+  proxy_server_id: string; // Corrected field name
   status: string;
 }
 
@@ -40,6 +41,7 @@ export async function getMcpServers(
   try {
     const apiKey = getMetaMcpApiKey();
     const apiBaseUrl = getMetaMcpApiBaseUrl();
+    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       console.error(
@@ -48,52 +50,82 @@ export async function getMcpServers(
       return _mcpServersCache || {};
     }
 
-    const headers = { Authorization: `Bearer ${apiKey}` };
-    const response = await axios.get(`${apiBaseUrl}/api/mcp-servers`, {
-      headers,
-    });
-    const data = response.data;
-
-    const serverDict: Record<string, ServerParameters> = {};
-    for (const serverParams of data) {
-      const params: ServerParameters = {
-        ...serverParams,
-        type: serverParams.type || "STDIO",
-      };
-
-      // Process based on server type
-      if (params.type === "STDIO") {
-        if ("args" in params && !params.args) {
-          params.args = undefined;
-        }
-
-        params.env = {
-          ...getDefaultEnvironment(),
-          ...(params.env || {}),
-        };
-      } else if (params.type === "SSE") {
-        // For SSE servers, ensure url is present
-        if (!params.url) {
-          console.warn(
-            `SSE server ${params.uuid} is missing url field, skipping`
-          );
-          continue;
-        }
-      }
-
-      const uuid = params.uuid;
-      if (uuid) {
-        serverDict[uuid] = params;
-      }
+    if (!mcpProxyServerId) {
+      console.error(
+        "MCPGARDEN_PROXY_SERVER_ID is not set. Please set it via environment variable or command line argument."
+      );
+      return _mcpServersCache || {};
     }
 
+    const headers = { Authorization: `Bearer ${apiKey}` };
+    const response = await axios.get(
+      `${apiBaseUrl}/api/mcp-servers?mcpProxyServerId=${mcpProxyServerId}`, // Use the retrieved ID
+      {
+        headers,
+      }
+    );
+    const data = response.data;
+    console.error("Raw data received from /api/mcp-servers:", data); // RE-ADDED with console.error
+
+    const serverDict: Record<string, ServerParameters> = {};
+    // Check if data is actually an array before iterating
+    if (Array.isArray(data)) {
+      for (const serverParams of data) {
+        try { // Add try block for individual server processing
+          console.error("Processing raw serverParam:", serverParams); // Log individual raw param
+          const params: ServerParameters = {
+            ...serverParams,
+            type: serverParams.type || "STDIO",
+          };
+
+          // Process based on server type
+          if (params.type === "STDIO") {
+            if ("args" in params && !params.args) {
+              params.args = undefined;
+            }
+
+            params.env = {
+              ...getDefaultEnvironment(),
+              ...(params.env || {}),
+            };
+          } else if (params.type === "SSE") {
+            // For SSE servers, ensure url is present
+            if (!params.url) {
+              console.warn(
+                `SSE server ${params.id} is missing url field, skipping` // Already using id here, which is now correct
+              );
+              continue;
+            }
+          }
+
+          // Use the 'id' field from the params object as the key
+          const id = params.id; // Use 'id' consistently
+          if (id) {
+            serverDict[id] = params; // Use id as the key
+          } else {
+            console.warn("Server data missing 'id' field, skipping:", params);
+          }
+        } catch (loopError) { // Add catch block for individual server processing
+          console.error("Error processing individual serverParam:", serverParams, "Error:", loopError);
+        }
+      }
+    } else {
+      console.warn("Received non-array data from /api/mcp-servers, expected an array. Data:", data);
+    }
+
+    console.error("Processed serverDict:", serverDict); // RE-ADDED with console.error
     _mcpServersCache = serverDict;
     _mcpServersCacheTimestamp = currentTime;
     return serverDict;
   } catch (error) {
+    console.error("Error fetching MCP servers:", error); // RE-ADDED with console.error
     if (_mcpServersCache !== null) {
+      console.error("Returning cached MCP servers due to fetch error."); // RE-ADDED with console.error
       return _mcpServersCache;
     }
-    return {};
+    console.error("Returning empty MCP server list due to fetch error and empty cache."); // RE-ADDED with console.error
+    // Instead of returning empty, let's re-throw the error so the caller knows something went wrong
+    // This might provide more useful feedback in the inspector UI if the request fails
+    throw new Error(`Failed to fetch MCP servers: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

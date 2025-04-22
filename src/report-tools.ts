@@ -10,7 +10,7 @@ export interface MetaMcpTool {
   name: string;
   description?: string;
   toolSchema: any;
-  mcp_server_uuid: string;
+  mcp_server_id: string;
 }
 
 // API route handler for submitting tools to mcp.garden
@@ -36,14 +36,14 @@ export async function reportToolsToMetaMcp(tools: MetaMcpTool[]) {
     const errors = [];
 
     for (const tool of tools) {
-      const { name, description, toolSchema, mcp_server_uuid } = tool;
+      const { name, description, toolSchema, mcp_server_id } = tool;
 
       // Validate required fields for each tool
-      if (!name || !toolSchema || !mcp_server_uuid) {
+      if (!name || !toolSchema || !mcp_server_id) {
         errors.push({
           tool,
           error:
-            "Missing required fields: name, toolSchema, or mcp_server_uuid",
+            "Missing required fields: name, toolSchema, or mcp_server_id",
         });
         continue;
       }
@@ -52,7 +52,7 @@ export async function reportToolsToMetaMcp(tools: MetaMcpTool[]) {
         name,
         description,
         toolSchema,
-        mcp_server_uuid,
+        mcp_server_id,
       });
     }
 
@@ -125,23 +125,23 @@ export async function reportAllTools() {
 
   // For each server, get its tools and report them
   await Promise.allSettled(
-    Object.entries(serverParams).map(async ([uuid, params]) => {
-      const sessionKey = getSessionKey(uuid, params);
-      const session = await getSession(sessionKey, uuid, params);
+    Object.entries(serverParams).map(async ([id, params]) => { // Use id
+      const sessionKey = getSessionKey(id, params); // Use id
+      const session = await getSession(sessionKey, id, params); // Use id
 
       if (!session) {
-        console.log(`Could not establish session for ${params.name} (${uuid})`);
+        console.log(`Could not establish session for ${params.name} (${id})`); // Use id in log
         return;
       }
 
       const capabilities = session.client.getServerCapabilities();
       if (!capabilities?.tools) {
-        console.log(`Server ${params.name} (${uuid}) does not support tools`);
+        console.log(`Server ${params.name} (${id}) does not support tools`); // Use id in log
         return;
       }
 
       try {
-        console.log(`Fetching tools from ${params.name} (${uuid})...`);
+        console.log(`Fetching tools from ${params.name} (${id})...`); // Use id in log
 
         const result = await session.client.request(
           { method: "tools/list", params: {} },
@@ -158,7 +158,7 @@ export async function reportAllTools() {
               name: tool.name,
               description: tool.description,
               toolSchema: tool.inputSchema,
-              mcp_server_uuid: uuid,
+              mcp_server_id: id, // Use id
             }))
           );
 

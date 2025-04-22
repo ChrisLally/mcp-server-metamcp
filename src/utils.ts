@@ -59,20 +59,27 @@ export function getMetaMcpApiKey(): string | undefined {
   return process.env.MCPGARDEN_API_KEY;
 }
 
+/**
+ * Get the mcp.garden Proxy Server ID from environment variables
+ */
+export function getMetaMcpProxyServerId(): string | undefined {
+  return process.env.MCPGARDEN_PROXY_SERVER_ID;
+}
+
 export function sanitizeName(name: string): string {
   return name.replace(/[^a-zA-Z0-9_-]/g, "");
 }
 
 export function computeParamsHash(
   params: ServerParameters,
-  uuid: string
+  id: string // Renamed parameter
 ): string {
   let paramsDict: any;
 
   // Default to "STDIO" if type is undefined
   if (!params.type || params.type === "STDIO") {
     paramsDict = {
-      uuid,
+      id, // Use id
       type: "STDIO", // Explicitly set type to "STDIO" for consistent hashing
       command: params.command,
       args: params.args,
@@ -84,7 +91,7 @@ export function computeParamsHash(
     };
   } else if (params.type === "SSE") {
     paramsDict = {
-      uuid,
+      id, // Use id
       type: params.type,
       url: params.url,
     };
@@ -96,6 +103,6 @@ export function computeParamsHash(
   return crypto.createHash("sha256").update(paramsJson).digest("hex");
 }
 
-export function getSessionKey(uuid: string, params: ServerParameters): string {
-  return `${uuid}_${computeParamsHash(params, uuid)}`;
+export function getSessionKey(id: string, params: ServerParameters): string { // Renamed parameter
+  return `${id}_${computeParamsHash(params, id)}`; // Use id
 }
