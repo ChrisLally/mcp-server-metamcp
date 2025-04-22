@@ -7,7 +7,8 @@
     "watch": "tsc --watch",
     "inspector": "dotenv -e .env.local npx @modelcontextprotocol/inspector dist/index.js -e MCPGARDEN_API_KEY=${MCPGARDEN_API_KEY} -e MCPGARDEN_API_BASE_URL=${MCPGARDEN_API_BASE_URL}",
     "inspector:prod": "dotenv -e .env.production.local npx @modelcontextprotocol/inspector dist/index.js -e MCPGARDEN_API_KEY=${MCPGARDEN_API_KEY}",
-    "report": "dotenv -e .env.local -- node dist/index.js --report"
+    "report": "dotenv -e .env.local -- node dist/index.js --report",
+    "publish": "npm run build && npm publish --access public"
   },
   "repository": {
     "type": "git",

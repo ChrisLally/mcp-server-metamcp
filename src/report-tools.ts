@@ -1,12 +1,12 @@
 import axios from "axios";
-import { getMetaMcpApiBaseUrl, getMetaMcpApiKey } from "./utils.js";
+import { getProxyMcpApiBaseUrl, getProxyMcpApiKey } from "./utils.js";
 import { getMcpServers } from "./fetch-mcp.js";
 import { initSessions, getSession } from "./sessions.js";
 import { getSessionKey } from "./utils.js";
 import { ListToolsResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 // Define interface for tool data structure
-export interface MetaMcpTool {
+export interface ProxyMcpTool {
   name: string;
   description?: string;
   toolSchema: any;
@@ -14,10 +14,10 @@ export interface MetaMcpTool {
 }
 
 // API route handler for submitting tools to mcp.garden
-export async function reportToolsToMetaMcp(tools: MetaMcpTool[]) {
+export async function reportToolsToProxyMcp(tools: ProxyMcpTool[]) {
   try {
-    const apiKey = getMetaMcpApiKey();
-    const apiBaseUrl = getMetaMcpApiBaseUrl();
+    const apiKey = getProxyMcpApiKey();
+    const apiBaseUrl = getProxyMcpApiBaseUrl();
 
     if (!apiKey) {
       return { error: "API key not set" };
@@ -153,7 +153,7 @@ export async function reportAllTools() {
             `Reporting ${result.tools.length} tools from ${params.name} to mcp.garden API...`
           );
 
-          const reportResult = await reportToolsToMetaMcp(
+          const reportResult = await reportToolsToProxyMcp(
             result.tools.map((tool) => ({
               name: tool.name,
               description: tool.description,

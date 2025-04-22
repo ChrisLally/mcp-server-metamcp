@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getMetaMcpApiBaseUrl, getMetaMcpApiKey } from "./utils.js";
+import { getProxyMcpApiBaseUrl, getProxyMcpApiKey } from "./utils.js";
 
 enum ToolStatus {
   ACTIVE = "ACTIVE",
@@ -31,8 +31,8 @@ export async function getInactiveTools(
   }
 
   try {
-    const apiKey = getMetaMcpApiKey();
-    const apiBaseUrl = getMetaMcpApiBaseUrl();
+    const apiKey = getProxyMcpApiKey();
+    const apiBaseUrl = getProxyMcpApiBaseUrl();
 
     if (!apiKey) {
       console.error(

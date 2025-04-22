@@ -6,17 +6,20 @@ startCommand:
     # JSON Schema defining the configuration options for the MCP.
     type: object
     required:
-      - metamcpApiKey
+      - mcpgardenApiKey
+      - mcpgardenProxyServerId # Added required proxy server ID
     properties:
-      metamcpApiKey:
+      mcpgardenApiKey: # Renamed property
         type: string
-        description: The API key from metamcp.com/api-keys. Required.
-      metamcpApiBaseUrl:
+        description: The API key from mcp.garden. Required.
+      mcpgardenProxyServerId: # Added property
+        type: string
+        description: The unique ID for this proxy server instance, obtained from mcp.garden. Required.
+      mcpgardenApiBaseUrl: # Renamed property
         type: string
         description: Optional override for the mcp.garden App URL (default is https://mcp.garden).
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
-    # Note: Command line arguments can also be used directly:
-    # --metamcp-api-key <your-api-key> --metamcp-api-base-url <base-url>
+    # It primarily uses environment variables.
     |-
-    (config) => ({ command: 'node', args: ['dist/index.js'], env: { MCPGARDEN_API_KEY: config.metamcpApiKey, ...(config.metamcpApiBaseUrl && { MCPGARDEN_API_BASE_URL: config.metamcpApiBaseUrl }) } })
+    (config) => ({ command: 'node', args: ['dist/index.js'], env: { MCPGARDEN_API_KEY: config.mcpgardenApiKey, MCPGARDEN_PROXY_SERVER_ID: config.mcpgardenProxyServerId, ...(config.mcpgardenApiBaseUrl && { MCPGARDEN_API_BASE_URL: config.mcpgardenApiBaseUrl }) } })

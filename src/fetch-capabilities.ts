@@ -1,8 +1,8 @@
 import axios from "axios";
 import {
-  getMetaMcpApiBaseUrl,
-  getMetaMcpApiKey,
-  getMetaMcpProxyServerId,
+  getProxyMcpApiBaseUrl,
+  getProxyMcpApiKey,
+  getProxyMcpProxyServerId,
 } from "./utils.js";
 
 export enum ProxyServerCapability { // Renamed enum
@@ -31,9 +31,9 @@ export async function getProxyServerCapabilities( // Renamed function
   }
 
   try {
-    const apiKey = getMetaMcpApiKey();
-    const apiBaseUrl = getMetaMcpApiBaseUrl();
-    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
+    const apiKey = getProxyMcpApiKey();
+    const apiBaseUrl = getProxyMcpApiBaseUrl();
+    const mcpProxyServerId = getProxyMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       console.error(

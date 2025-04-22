@@ -1,9 +1,9 @@
 import axios from "axios";
 import {
   getDefaultEnvironment,
-  getMetaMcpApiBaseUrl,
-  getMetaMcpApiKey,
-  getMetaMcpProxyServerId, // Import the new function
+  getProxyMcpApiBaseUrl,
+  getProxyMcpApiKey,
+  getProxyMcpProxyServerId, // Import the new function
 } from "./utils.js";
 
 // Define a new interface for server parameters that can be either STDIO or SSE
@@ -39,9 +39,9 @@ export async function getMcpServers(
   }
 
   try {
-    const apiKey = getMetaMcpApiKey();
-    const apiBaseUrl = getMetaMcpApiBaseUrl();
-    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
+    const apiKey = getProxyMcpApiKey();
+    const apiBaseUrl = getProxyMcpApiBaseUrl();
+    const mcpProxyServerId = getProxyMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       console.error(

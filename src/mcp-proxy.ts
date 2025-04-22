@@ -22,7 +22,7 @@ import { getMcpServers } from "./fetch-mcp.js";
 import { getSessionKey, sanitizeName } from "./utils.js";
 import { cleanupAllSessions, getSession, initSessions } from "./sessions.js";
 import { ConnectedClient } from "./client.js";
-import { reportToolsToMetaMcp } from "./report-tools.js";
+import { reportToolsToProxyMcp } from "./report-tools.js";
 import { getInactiveTools, ToolParameters } from "./fetch-tools.js";
 import {
   getProxyServerCapabilities, // Use new function name
@@ -144,7 +144,7 @@ export const createServer = async () => {
             });
 
             // Report full tools for this server
-            reportToolsToMetaMcp(
+            reportToolsToProxyMcp(
               result.tools.map((tool) => ({
                 name: tool.name,
                 description: tool.description,

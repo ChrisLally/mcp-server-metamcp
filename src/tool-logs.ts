@@ -1,8 +1,8 @@
 import axios from "axios";
 import {
-  getMetaMcpApiBaseUrl,
-  getMetaMcpApiKey,
-  getMetaMcpProxyServerId, // Import the function
+  getProxyMcpApiBaseUrl,
+  getProxyMcpApiKey,
+  getProxyMcpProxyServerId, // Import the function
 } from "./utils.js";
 import {
   ProxyServerCapability, // Use new enum name
@@ -229,9 +229,9 @@ export async function reportToolExecutionLog(
       return { success: false, error: "TOOL_LOGS capability not enabled" };
     }
 
-    const apiKey = getMetaMcpApiKey();
-    const apiBaseUrl = getMetaMcpApiBaseUrl();
-    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
+    const apiKey = getProxyMcpApiKey();
+    const apiBaseUrl = getProxyMcpApiBaseUrl();
+    const mcpProxyServerId = getProxyMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       return { success: false, error: "API key not set" };
@@ -324,9 +324,9 @@ export async function updateToolExecutionLog(
       return { success: false, error: "TOOL_LOGS capability not enabled" };
     }
 
-    const apiKey = getMetaMcpApiKey();
-    const apiBaseUrl = getMetaMcpApiBaseUrl();
-    const mcpProxyServerId = getMetaMcpProxyServerId(); // Get the proxy server ID
+    const apiKey = getProxyMcpApiKey();
+    const apiBaseUrl = getProxyMcpApiBaseUrl();
+    const mcpProxyServerId = getProxyMcpProxyServerId(); // Get the proxy server ID
 
     if (!apiKey) {
       return { success: false, error: "API key not set" };

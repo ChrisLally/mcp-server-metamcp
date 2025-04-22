@@ -1,8 +1,8 @@
 import { getMcpServers, ServerParameters } from "./fetch-mcp.js";
 import {
   ConnectedClient,
-  createMetaMcpClient,
-  connectMetaMcpClient,
+  createProxyMcpClient,
+  connectProxyMcpClient,
 } from "./client.js";
 import { getSessionKey } from "./utils.js";
 
@@ -34,15 +34,15 @@ export const getSession = async (
       console.error(`Found old session(s) for ID ${id} with different params: ${old_session_keys.join(', ')}. Cleaning up...`); // Use id
     }
 
-    console.error(`Calling createMetaMcpClient for ID: ${id}`); // Use id
-    const { client, transport } = createMetaMcpClient(params);
+    console.error(`Calling createProxyMcpClient for ID: ${id}`); // Use id
+    const { client, transport } = createProxyMcpClient(params);
     if (!client || !transport) {
       console.error(`Failed to create client or transport for ID: ${id}`); // Use id
       return;
     }
 
-    console.error(`Calling connectMetaMcpClient for ID: ${id}`); // Use id
-    const newClient = await connectMetaMcpClient(client, transport);
+    console.error(`Calling connectProxyMcpClient for ID: ${id}`); // Use id
+    const newClient = await connectProxyMcpClient(client, transport);
     if (!newClient) {
       console.error(`Failed to connect client for ID: ${id}`); // Use id
       return;

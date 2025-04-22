@@ -14,7 +14,7 @@ export interface ConnectedClient {
   cleanup: () => Promise<void>;
 }
 
-export const createMetaMcpClient = (
+export const createProxyMcpClient = (
   serverParams: ServerParameters
 ): { client: Client | undefined; transport: Transport | undefined } => {
   let transport: Transport | undefined;
@@ -65,7 +65,7 @@ export const createMetaMcpClient = (
   return { client, transport };
 };
 
-export const connectMetaMcpClient = async (
+export const connectProxyMcpClient = async (
   client: Client,
   transport: Transport
 ): Promise<ConnectedClient | undefined> => {

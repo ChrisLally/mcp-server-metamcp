@@ -1,33 +1,16 @@
 # mcp.garden Proxy MCP Server
 
-[https://mcpgarden.com](https://mcpgarden.com): Ship Quickly With MCP
+[https://mcp.garden](https://mcp.garden): Ship Quickly With MCP
 
 The mcp.garden MCP Server is a proxy server that joins multiple MCP⁠ servers into one. It fetches tool/prompt/resource configurations from your mcp.garden account⁠ and routes tool/prompt/resource requests to the correct underlying server.
 
-[![smithery badge](https://smithery.ai/badge/@metatool-ai/mcp-server-metamcp)](https://smithery.ai/server/@metatool-ai/mcp-server-metamcp)
-
-<a href="https://glama.ai/mcp/servers/0po36lc7i6">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/0po36lc7i6/badge" alt="MetaServer MCP server" />
-</a>
-
-mcp.garden App repo: https://github.com/metatool-ai/metatool-app
-
 ## Installation
-
-### Installing via Smithery
-
-Sometimes Smithery works (confirmed in Windsurf locally) but sometimes it is unstable because mcp.garden is special that it runs other MCPs on top of it. Please consider using manual installation if it doesn't work instead.
-
-To install mcp.garden MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@metatool-ai/mcp-server-metamcp):
-
-```bash
-npx -y @smithery/cli install @metatool-ai/mcp-server-metamcp --client claude
-```
 
 ### Manual Installation
 
 ```bash
 export MCPGARDEN_API_KEY=<env>
+export MCPGARDEN_PROXY_SERVER_ID=<env>
 npx -y @mcpgarden/server@latest
 ```
 
@@ -38,7 +21,8 @@ npx -y @mcpgarden/server@latest
       "command": "npx",
       "args": ["-y", "@mcpgarden/server@latest"],
       "env": {
-        "MCPGARDEN_API_KEY": "<your api key>"
+        "MCPGARDEN_API_KEY": "<your api key>",
+        "MCPGARDEN_PROXY_SERVER_ID": "<your proxy server id>"
       }
     }
   }
@@ -47,16 +31,24 @@ npx -y @mcpgarden/server@latest
 
 ## Usage
 
+Set the required environment variables first:
+
+```bash
+export MCPGARDEN_API_KEY="<your-api-key>"
+export MCPGARDEN_PROXY_SERVER_ID="<your-proxy-server-id>"
+# Optional: export MCPGARDEN_API_BASE_URL="<your-custom-base-url>"
+```
+
 ### Using as a stdio server (default)
 
 ```bash
-mcp-server-metamcp --metamcp-api-key <your-api-key>
+mcpgarden-server
 ```
 
 ### Using as an SSE server
 
 ```bash
-mcp-server-metamcp --metamcp-api-key <your-api-key> --transport sse --port 12006
+mcpgarden-server --transport sse --port 12006
 ```
 
 With the SSE transport option, the server will start an Express.js web server that listens for SSE connections on the `/sse` endpoint and accepts messages on the `/messages` endpoint.
@@ -65,18 +57,20 @@ With the SSE transport option, the server will start an Express.js web server th
 
 ```
 Options:
-  --metamcp-api-key <key>       API key for mcp.garden (can also be set via MCPGARDEN_API_KEY env var)
-  --metamcp-api-base-url <url>  Base URL for mcp.garden API (can also be set via MCPGARDEN_API_BASE_URL env var)
-  --report                      Fetch all MCPs, initialize clients, and report tools to mcp.garden API
+  --mcpgarden-api-key <key>     API key for mcp.garden (alternative to MCPGARDEN_API_KEY env var)
+  --mcpgarden-api-base-url <url> Base URL for mcp.garden API (alternative to MCPGARDEN_API_BASE_URL env var)
+  --report                      Fetch all MCPs, initialize clients, and report tools to mcp.garden API instead of starting the server
   --transport <type>            Transport type to use (stdio or sse) (default: "stdio")
-  --port <port>                 Port to use for SSE transport (default: "12006")
+  --port <port>                 Port to use for SSE transport (default: "3001")
+  --require-api-auth            Require API key in SSE URL path for authentication (SSE transport only)
   -h, --help                    display help for command
 ```
 
 ## Environment Variables
 
-- `MCPGARDEN_API_KEY`: API key for mcp.garden
-- `MCPGARDEN_API_BASE_URL`: Base URL for mcp.garden API
+- `MCPGARDEN_API_KEY`: (Required) API key for mcp.garden.
+- `MCPGARDEN_PROXY_SERVER_ID`: (Required) The unique ID for this proxy server instance, obtained from mcp.garden.
+- `MCPGARDEN_API_BASE_URL`: (Optional) Base URL for mcp.garden API (defaults to `https://mcp.garden`).
 
 ## Development
 
@@ -104,12 +98,12 @@ npm run watch
 sequenceDiagram
     participant MCPClient as MCP Client (e.g. Claude Desktop)
     participant mcp.garden-mcp-server as mcp.garden MCP Server
-    participant MetaMCPApp as mcp.garden App
+    participant mcp.gardenApp as mcp.garden App
     participant MCPServers as Installed MCP Servers in Metatool App
 
     MCPClient ->> mcp.garden-mcp-server: Request list tools
-    mcp.garden-mcp-server ->> MetaMCPApp: Get tools configuration & status
-    MetaMCPApp ->> mcp.garden-mcp-server: Return tools configuration & status
+    mcp.garden-mcp-server ->> mcp.gardenApp: Get tools configuration & status
+    mcp.gardenApp ->> mcp.garden-mcp-server: Return tools configuration & status
 
     loop For each listed MCP Server
         mcp.garden-mcp-server ->> MCPServers: Request list_tools

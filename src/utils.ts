@@ -48,21 +48,21 @@ export function getDefaultEnvironment(): Record<string, string> {
 /**
  * Get the mcp.garden API base URL from environment variables
  */
-export function getMetaMcpApiBaseUrl(): string {
+export function getProxyMcpApiBaseUrl(): string {
   return process.env.MCPGARDEN_API_BASE_URL || "https://mcp.garden";
 }
 
 /**
  * Get the mcp.garden API key from environment variables
  */
-export function getMetaMcpApiKey(): string | undefined {
+export function getProxyMcpApiKey(): string | undefined {
   return process.env.MCPGARDEN_API_KEY;
 }
 
 /**
  * Get the mcp.garden Proxy Server ID from environment variables
  */
-export function getMetaMcpProxyServerId(): string | undefined {
+export function getProxyMcpProxyServerId(): string | undefined {
   return process.env.MCPGARDEN_PROXY_SERVER_ID;
 }
 

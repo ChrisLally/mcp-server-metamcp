@@ -10,14 +10,14 @@ import { startSSEServer } from "./sse.js";
 const program = new Command();
 
 program
-  .name("mcp-server-metamcp")
+  .name("mcp-garden-proxy-mcp-server")
   .description("mcp.garden MCP Server - The One MCP to manage all your MCPs")
   .option(
-    "--metamcp-api-key <key>",
+    "--mcpgarden-api-key <key>", // Renamed flag
     "API key for mcp.garden (can also be set via MCPGARDEN_API_KEY env var)"
   )
   .option(
-    "--metamcp-api-base-url <url>",
+    "--mcpgarden-api-base-url <url>",
     "Base URL for mcp.garden API (can also be set via MCPGARDEN_API_BASE_URL env var)"
   )
   .option(
@@ -32,11 +32,12 @@ program
 const options = program.opts();
 
 // Set environment variables from command line arguments
-if (options.metamcpApiKey) {
-  process.env.MCPGARDEN_API_KEY = options.metamcpApiKey;
+// Use the renamed option property from commander
+if (options.mcpgardenApiKey) {
+  process.env.MCPGARDEN_API_KEY = options.mcpgardenApiKey;
 }
-if (options.metamcpApiBaseUrl) {
-  process.env.MCPGARDEN_API_BASE_URL = options.metamcpApiBaseUrl;
+if (options.mcpgardenApiBaseUrl) {
+  process.env.MCPGARDEN_API_BASE_URL = options.mcpgardenApiBaseUrl;
 }
 
 async function main() {
